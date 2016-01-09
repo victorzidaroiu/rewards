@@ -108,33 +108,5 @@ router.get('/account/:customerAccountNumber/subscriptions/:channels', function(r
 		res.json(response);
 	});
 });
-/*
-router.get('/account-eligibility/:customerAccountNumber', function(req, res, next) {
-	switch (req.params.customerAccountNumber) {
-		case '123456':
-			res.json('CUSTOMER_ELIGIBLE');
-		break;
 
-		case '123457':
-			res.json('CUSTOMER_ELIGIBLE');
-			break;
-
-		case '123458':
-			res.json('CUSTOMER_ELIGIBLE');
-			break;
-
-		case '123411':
-			res.json('CUSTOMER_INELIGIBLE');
-		break;
-
-		case '123412':
-			res.json('TECHNICAL_ERROR');
-		break;
-
-		default:
-			res.json('INVALID_ACCOUNT_NUMBER');
-		break;
-	}
-});
-*/
 module.exports = router;
