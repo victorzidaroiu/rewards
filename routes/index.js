@@ -3,59 +3,132 @@ var router = express.Router();
 var debug = require('debug')('API');
 var rest = require('restler');
 var request = require('request');
+var nock = require('nock');
 
-var rewards = {
-	SPORTS: 'CHAMPIONS_LEAGUE_FINAL_TICKET',
-	KIDS: null,
-	MUSIC: 'KARAOKE_PRO_MICROPHONE',
-	NEWS: null,
-	MOVIES: 'PIRATES_OF_THE_CARIBBEAN_COLLECTION'
-}
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/123456')
+	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
+
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/123457')
+	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
+
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/123458')
+	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
+
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/123411')
+	.reply(200, JSON.stringify('CUSTOMER_INELIGIBLE'));
+
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/123412')
+	.reply(200, JSON.stringify('TECHNICAL_ERROR'));
+
+nock('http://account-eligibility.com')
+	.get('/account-eligibility/12341')
+	.reply(200, JSON.stringify('INVALID_ACCOUNT_NUMBER'));
+
+var campaigns = [{
+		SPORTS: 'CHAMPIONS_LEAGUE_FINAL_TICKET',
+		KIDS: null,
+		MUSIC: 'KARAOKE_PRO_MICROPHONE',
+		NEWS: null,
+		MOVIES: 'PIRATES_OF_THE_CARIBBEAN_COLLECTION'
+	}, {
+		CULTURE_AND_NEWS: "ENO_OPERA_TICKETS",
+		KIDS: "MARIO_KART_7"
+	}
+];
 
 /* GET home page. */
-router.post('/api/rewards/:customerAccountNumber', function(req, res, next) {
-	var channels = JSON.parse(req.body.channels);
-	debug(channels);
-	debug(req.params.customerAccountNumber);
-	var customerRewards = [];
+router.get('/account/:customerAccountNumber/subscriptions/:channels', function(req, res, next) {
+	var channels = req.params.channels.split('|');
+	var customerAccountNumber = req.params.customerAccountNumber;
 
-	request('http://localhost:8081/api/eligibility-service/' + req.params.customerAccountNumber, function (error, response, body) {
-		body = JSON.parse(body);
+	var combinedChannels = [];
+	channels.forEach(function(channel1){
+		channels.forEach(function(channel2){
+			if (channel1 !== channel2)
+				combinedChannels.push(channel1 + '_AND_' + channel2);
+		});
+	});
+	channels = channels.concat(combinedChannels);
+
+	debug(channels);
+	debug(customerAccountNumber);
+	var response = {
+		eligibleRewardList: {
+			campaigns: [],
+			success: false
+		}
+	};
+
+	request('http://account-eligibility.com/account-eligibility/' + customerAccountNumber, function (error, r, body) {
 		debug(body);
+		body = JSON.parse(body);
 		switch(body) {
 			case 'CUSTOMER_ELIGIBLE':
-				channels.forEach(function(channel){
-					if (rewards[channel] !== null)
-						customerRewards.push(rewards[channel]);
-				});
+				response.eligibleRewardList.reason = 'CUSTOMER_ELIGIBLE';
+				response.eligibleRewardList.success = true;
+				campaigns.forEach(function(rewards, campaignIterator) {
+					channels.forEach(function(channel) {
+						if (rewards[channel] != undefined && rewards[channel] !== null) {
+							var campaignNumber;
+							if (response.eligibleRewardList.campaigns[campaignIterator] === undefined) {
+								if (campaignIterator.toString().length === 1)
+									campaignNumber = "00" + (campaignIterator + 1);
+								else if(campaignIterator.toString().length === 2)
+									campaignNumber = "0" + (campaignIterator + 1);
 
-				res.json({
-					error: false,
-					data: customerRewards
+								response.eligibleRewardList.campaigns[campaignIterator] = {
+									campaign: "CAMPAIGN" + campaignNumber,
+									rewards: []
+								};
+							}
+
+							response.eligibleRewardList.campaigns[campaignIterator].rewards.push(rewards[channel]);
+						}
+					});
 				});
 			break;
 
-			default:
-				res.json({
-					error: true,
-					errorType: body
-				});
-		}
-	})
-});
+			case 'CUSTOMER_INELIGIBLE':
+				response.eligibleRewardList.reason = 'CUSTOMER_NOT_ELIGIBLE';
+			break;
 
-router.get('/api/eligibility-service/:customerAccountNumber', function(req, res, next) {
+			case 'TECHNICAL_ERROR':
+				response.eligibleRewardList.reason = 'TECHNICAL ERROR';
+			break;
+
+			case 'INVALID_ACCOUNT_NUMBER':
+				response.eligibleRewardList.reason = 'INVALID ACCOUNT NUMBER';
+			break;
+		}
+		res.json(response);
+	});
+});
+/*
+router.get('/account-eligibility/:customerAccountNumber', function(req, res, next) {
 	switch (req.params.customerAccountNumber) {
-		case '1':
+		case '123456':
 			res.json('CUSTOMER_ELIGIBLE');
 		break;
 
-		case '2':
+		case '123457':
+			res.json('CUSTOMER_ELIGIBLE');
+			break;
+
+		case '123458':
+			res.json('CUSTOMER_ELIGIBLE');
+			break;
+
+		case '123411':
 			res.json('CUSTOMER_INELIGIBLE');
 		break;
 
-		case '3':
-			res.json('EXCEPTION');
+		case '123412':
+			res.json('TECHNICAL_ERROR');
 		break;
 
 		default:
@@ -63,5 +136,5 @@ router.get('/api/eligibility-service/:customerAccountNumber', function(req, res,
 		break;
 	}
 });
-
+*/
 module.exports = router;
