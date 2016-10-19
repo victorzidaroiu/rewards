@@ -2,7 +2,7 @@
 
 Provides an API endpoint that returns the rewards a customer is eligible for.
 
-http://rewards.zidaroiu.com
+http://rewards.zidaroiu.com/api/account/1000/subscriptions/1
 
 ### Requirements
 
