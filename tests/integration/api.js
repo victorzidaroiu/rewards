@@ -1,8 +1,9 @@
-var debug = require('debug')('test');
 var rest = require('restler');
 var assert = require('assert');
+var debug = require('debug')('api-test');
+require('dotenv').config({ silent: true })
 
-var server = 'http://localhost:8084';
+var server = 'http://localhost:' + process.env.PORT;
 var eligibilityServiceResponse;
 var customerAccountNumber;
 

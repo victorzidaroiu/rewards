@@ -1,13 +1,24 @@
-## REWARDS SERVICE
+## Rewards
+
+Provides an API endpoint that returns the rewards a customer is eligible for.
+
+http://rewards.zidaroiu.com
+
+### Requirements
+
+- node
+- mocha
+- nodemon
 
 ### Installation
 
-npm install mocha -g; npm install nodemon -g;npm install;
+``` nvm use ```
+``` npm i ```
 
 ### Start server
 
-npm start
+``` npm start ```
 
 ### Test
 
-npm test
+``` npm test ```

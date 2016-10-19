@@ -5,14 +5,15 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('myapp:server');
+var debug = require('debug')('server');
 var http = require('http');
+require('dotenv').config({ silent: true })
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = 8084;
+var port = process.env.PORT || 3300;
 app.set('port', port);
 
 /**
@@ -86,5 +87,6 @@ function onListening() {
   var bind = typeof addr === 'string'
     ? 'pipe ' + addr
     : 'port ' + addr.port;
-  debug('Listening on ' + bind);
+
+  console.log('Started app on ' + bind);
 }

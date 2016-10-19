@@ -1,33 +1,10 @@
 var express = require('express');
 var router = express.Router();
 var debug = require('debug')('API');
-var rest = require('restler');
 var request = require('request');
-var nock = require('nock');
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/123456')
-	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/123457')
-	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/123458')
-	.reply(200, JSON.stringify('CUSTOMER_ELIGIBLE'));
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/123411')
-	.reply(200, JSON.stringify('CUSTOMER_INELIGIBLE'));
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/123412')
-	.reply(200, JSON.stringify('TECHNICAL_ERROR'));
-
-nock('http://account-eligibility.com')
-	.get('/account-eligibility/12341')
-	.reply(200, JSON.stringify('INVALID_ACCOUNT_NUMBER'));
+var _ = require('lodash');
+var routes = require('./routes.js');
+require('dotenv').config({ silent: true })
 
 var campaigns = [{
 		SPORTS: 'CHAMPIONS_LEAGUE_FINAL_TICKET',
@@ -41,10 +18,22 @@ var campaigns = [{
 	}
 ];
 
-/* GET home page. */
-router.get('/account/:customerAccountNumber/subscriptions/:channels', function(req, res, next) {
+router.get('/api/eligibility/:accountNumber', function(req, res, next) {
+	const responses = [
+		'CUSTOMER_ELIGIBLE',
+		'CUSTOMER_INELIGIBLE',
+		'TECHNICAL_ERROR',
+		'INVALID_ACCOUNT_NUMBER'];
+
+
+	res.json({
+		data: responses[_.random(0, responses.length - 1)]
+	});
+});
+
+router.get('/api/account/:accountNumber/subscriptions/:channels', function(req, res, next) {
 	var channels = req.params.channels.split('|');
-	var customerAccountNumber = req.params.customerAccountNumber;
+	var accountNumber = req.params.accountNumber;
 
 	var combinedChannels = [];
 	channels.forEach(function(channel1){
@@ -55,8 +44,6 @@ router.get('/account/:customerAccountNumber/subscriptions/:channels', function(r
 	});
 	channels = channels.concat(combinedChannels);
 
-	debug(channels);
-	debug(customerAccountNumber);
 	var response = {
 		eligibleRewardList: {
 			campaigns: [],
@@ -64,10 +51,9 @@ router.get('/account/:customerAccountNumber/subscriptions/:channels', function(r
 		}
 	};
 
-	request('http://account-eligibility.com/account-eligibility/' + customerAccountNumber, function (error, r, body) {
-		debug(body);
-		body = JSON.parse(body);
-		switch(body) {
+	request(process.env.ELIGIBILITY_ENDPOINT + '/' + accountNumber, function (error, r, body) {
+		var data = JSON.parse(body);
+		switch(data.data) {
 			case 'CUSTOMER_ELIGIBLE':
 				response.eligibleRewardList.reason = 'CUSTOMER_ELIGIBLE';
 				response.eligibleRewardList.success = true;
