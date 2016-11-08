@@ -1,13 +1,20 @@
 {
-  "name": "myapp",
+  "name": "Rewards",
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "./bin/www",
-    "test": " mocha ./tests/*"
+    "start": "node .",
+    "dev": "DEBUG=server nodemon .",
+    "test": "DEBUG=api-test mocha --compilers js:babel-core/register ./tests/**",
+    "eslint": "eslint ."
   },
   "dependencies": {
     "assert": "^1.3.0",
+    "babel-core": "*",
+    "babel-plugin-transform-async-to-generator": "^6.16.0",
+    "babel-polyfill": "^6.16.0",
+    "babel-preset-es2015": "^6.16.0",
+    "babel-register": "^6.16.3",
     "body-parser": "~1.13.2",
     "cookie-parser": "~1.3.5",
     "debug": "~2.2.0",
@@ -20,5 +27,20 @@
     "request": "^2.67.0",
     "restler": "^3.4.0",
     "serve-favicon": "~2.3.0"
+  },
+  "devDependencies": {
+    "eslint": "^3.9.1",
+    "eslint-config-airbnb": "^12.0.0",
+    "eslint-plugin-import": "^2.0.1",
+    "eslint-plugin-jsx-a11y": "^2.2.3",
+    "eslint-plugin-react": "^6.4.1",
+    "mocha": "^3.1.2",
+    "nodemon": "^1.11.0"
+  },
+  "eslintConfig": {
+    "extends": "airbnb",
+    "plugins": [
+      "import"
+    ]
   }
 }

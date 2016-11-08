@@ -1,23 +1,19 @@
 ## Rewards
 
-Provides an API endpoint that returns the rewards a customer is eligible for.
-
-http://rewards.zidaroiu.com/api/account/1000/subscriptions/1
-
-### Requirements
-
-- node
-- mocha
-- nodemon
+This app provides an API endpoint that returns the rewards a customer is eligible for.
 
 ### Installation
 
 ``` nvm use ```
 ``` npm i ```
 
-### Start server
+## Example request
 
-``` npm start ```
+http://localhost:3000/api/account/1000/subscriptions/SPORTS|KIDS
+
+### Start server locally
+
+``` npm run dev ```
 
 ### Test
 
