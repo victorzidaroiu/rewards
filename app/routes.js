@@ -5,13 +5,15 @@ import dotenvModule from 'dotenv';
 import eligibilityMockController from './api/eligibility-mock';
 import subscriptionsController from './api/subscriptions';
 
+/*eslint-disable */
 const router = express.Router();
-const routes = require('./routes.js');
+/*eslint-enabled */
+
 const debug = debugModule('server');
 const dotenv = dotenvModule.config({ silent: true });
 
 router.get('/', (req, res, next) => {
-	res.send("Check the readme for example use for the API.");
+	res.send('Check the readme for example use for the API.');
 });
 
 router.get('/api/eligibility/:accountNumber', eligibilityMockController);

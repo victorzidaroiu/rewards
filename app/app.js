@@ -1,6 +1,4 @@
 import express from 'express';
-import path from 'path';
-import favicon from 'serve-favicon';
 import logger from 'morgan';
 import cookieParser from 'cookie-parser';
 import bodyParser from 'body-parser';
@@ -14,27 +12,27 @@ app.use(cookieParser());
 app.use(routes);
 
 app.use((req, res, next) => {
-    err = new Error('Not Found');
-    err.status = 404;
-    next(err);
+  const err = new Error('Not Found');
+  err.status = 404;
+  next(err);
 });
 
 if (app.get('env') === 'development') {
-    app.use((err, req, res, next) => {
-        res.status(err.status || 500);
-        res.json({
-            message: err.message,
-            error: err
-        });
-    });
-}
-
-app.use((err, req, res, next) => {
+  app.use((err, req, res) => {
     res.status(err.status || 500);
     res.json({
-        message: err.message,
-        error: {}
+      message: err.message,
+      error: err,
     });
+  });
+}
+
+app.use((err, req, res) => {
+  res.status(err.status || 500);
+  res.json({
+    message: err.message,
+    error: {},
+  });
 });
 
 export default app;
