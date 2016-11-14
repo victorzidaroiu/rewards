@@ -5,9 +5,9 @@ This app does not have a front end.
 
 ## Installation
 
-``` nvm use ```
-``` npm i ```
-``` cp .env.env .env ```
+* ``` nvm use ```
+* ``` npm i ```
+* ``` cp .env.env .env ```
 
 ## Example request
 
